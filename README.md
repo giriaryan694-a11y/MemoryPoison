@@ -31,7 +31,7 @@ Modern AI assistants support URL parameters that pre-fill the prompt box:
 | Grok | `https://grok.com/?q=[Prompt]` |
 | Mistral | `https://chat.mistral.ai/chat?q=[Prompt]` |
 | Claude | `https://claude.ai/new?q=[Prompt]` |
-| Duck.ai | `https://duckduckgo.com/?q=[Prompt]` |
+| Duck.ai | `https://duckduckgo.com/?q=[Prompt]&ia=chat&bang=true` |
 
 A poisoning payload embedded in one of these links looks like this:
 
