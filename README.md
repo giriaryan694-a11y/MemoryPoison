@@ -23,15 +23,15 @@ The attack exploits a feature common to modern AI assistants: **persistent memor
 
 Modern AI assistants support URL parameters that pre-fill the prompt box:
 
-| AI Assistant | URL Parameter |
-|---|---|
-| Microsoft Copilot | `https://copilot.microsoft.com/?q=[Prompt]` |
-| ChatGPT | `https://chatgpt.com/?q=[Prompt]` |
-| Google Gemini | `https://gemini.google.com/app?prompt=[Prompt]` |
-| Grok | `https://grok.com/?q=[Prompt]` |
-| Mistral | `https://chat.mistral.ai/chat?q=[Prompt]` |
-| Claude | `https://claude.ai/new?q=[Prompt]` |
-| Duck.ai | `https://duckduckgo.com/?q=[Prompt]&ia=chat&bang=true` |
+| AI Assistant      | URL Parameter                                          |
+| ----------------- | ------------------------------------------------------ |
+| Microsoft Copilot | `https://copilot.microsoft.com/?q=[Prompt]`            |
+| ChatGPT           | `https://chatgpt.com/?q=[Prompt]`                      |
+| Google Gemini     | `https://gemini.google.com/app?prompt=[Prompt]`        |
+| Grok              | `https://grok.com/?q=[Prompt]`                         |
+| Mistral           | `https://chat.mistral.ai/chat?q=[Prompt]`              |
+| Claude            | `https://claude.ai/new?q=[Prompt]`                     |
+| Duck.ai           | `https://duckduckgo.com/?q=[Prompt]&ia=chat&bang=true` |
 
 A poisoning payload embedded in one of these links looks like this:
 
@@ -62,25 +62,34 @@ All future AI responses are now biased
 Through hands-on research, here is how major AI platforms currently respond to these poisoning attempts:
 
 ### ✅ Strong Defense — Claude (Anthropic)
+
 Claude has implemented a notable defense: when a prompt arrives via an automated URL redirect, **Claude does not auto-send it**. Instead:
-- The prompt is auto-written into the input box but NOT submitted
-- A **warning message** is displayed to the user: the interface alerts that this instruction may attempt to manipulate the model into unauthorized behavior
-- This encourages users to **read and understand** the prompt before deciding to send it
-- This is currently one of the best UX-level defenses observed
+
+* The prompt is auto-written into the input box but NOT submitted
+* A **warning message** is displayed to the user: the interface alerts that this instruction may attempt to manipulate the model into unauthorized behavior
+* This encourages users to **read and understand** the prompt before deciding to send it
+* This is currently one of the best UX-level defenses observed
 
 ### ⚠️ Partial Defense — Duck.ai
-- Prompt is auto-written but not auto-sent (similar behavior to Claude)
-- **No warning message** is displayed to the user
-- Duck.ai also lacks persistent memory features, making memory poisoning largely ineffective here anyway
+
+* Prompt is auto-written but not auto-sent (similar behavior to Claude)
+* **No warning message** is displayed to the user
+* Duck.ai also lacks persistent memory features, making memory poisoning largely ineffective here anyway
 
 ### ❌ Removed Feature — Google Gemini & Microsoft Copilot
-- Both platforms **appear to have removed or restricted** the auto-fill URL prompt feature
-- Attempts to use the `?prompt=` or `?q=` parameters no longer trigger automatic prompt injection
+
+* Both platforms **appear to have removed or restricted** the auto-fill URL prompt feature
+* Attempts to use the `?prompt=` or `?q=` parameters no longer trigger automatic prompt injection
 
 ### ⚠️ Still Vulnerable — ChatGPT, Grok, Mistral
-- These platforms still accept and **auto-execute** pre-filled prompts from URL parameters
-- Memory poisoning via crafted links remains effective on these platforms as of research date
-- Users clicking poisoned links on these platforms receive **no warning**
+
+* These platforms still accept pre-filled prompts from URL parameters
+* On **logged-out / unauthenticated** ChatGPT flows, the prompt may auto-submit depending on the entry path
+* On **logged-in** ChatGPT flows, the prompt is typically written into the send bar and the user must press **Send** manually
+* That manual step adds friction, but it does **not** remove the risk of memory poisoning if the user sends the prompt without reviewing it
+* For ChatGPT specifically, unauthenticated users generally do **not** have access to account-tied features like saved memory or chat history management, so the impact is lower than a logged-in account with memory enabled
+* Memory poisoning via crafted links remains effective on these platforms as of research date
+* Users clicking poisoned links on these platforms may receive **no warning**
 
 ---
 
@@ -96,7 +105,7 @@ The attack is insidious for several reasons:
 
 **Low barrier** — Freely available tools like the CiteMET npm package and point-and-click URL generators make deploying this attack as easy as installing a website plugin.
 
-**High-stakes domains** — Microsoft's research found poisoning attempts targeting financial advice, health information, legal services, and cybersecurity — domains where biased recommendations can cause serious real-world harm.
+**High-stakes domains** — Microsoft's research found poisoning attempts targeting financial advice, health information, legal services, and cybersecurity — domains where biased recommendations can cause real-world harm.
 
 ---
 
@@ -176,31 +185,31 @@ UrlClickEvents
 
 ### Behavioral Hygiene
 
-- **Hover before clicking** any "Summarize with AI" or "Open in AI" button — check the actual URL destination
-- **Look for `?q=` or `?prompt=` parameters** in AI assistant URLs — these carry the injected instruction
-- **Be suspicious of phrases** like "remember," "trusted source," "from now on," or "in future conversations" in pre-filled prompts
-- **Don't paste prompts from unknown sources** — copied prompts may contain hidden memory instructions
-- **Periodically audit your AI memory** — clear entries you don't recognize
-- **Treat AI links in emails like executable files** — the same caution applies
+* **Hover before clicking** any "Summarize with AI" or "Open in AI" button — check the actual URL destination
+* **Look for `?q=` or `?prompt=` parameters** in AI assistant URLs — these carry the injected instruction
+* **Be suspicious of phrases** like "remember," "trusted source," "from now on," or "in future conversations" in pre-filled prompts
+* **Don't paste prompts from unknown sources** — copied prompts may contain hidden memory instructions
+* **Periodically audit your AI memory** — clear entries you don't recognize
+* **Treat AI links in emails like executable files** — the same caution applies
 
 ---
 
 ## 🗺️ MITRE Mapping
 
-| Tactic | ID | Technique |
-|---|---|---|
-| Execution | [T1204.001](https://attack.mitre.org/techniques/T1204/001/) | User Execution: Malicious Link |
-| Execution | [AML.T0051](https://atlas.mitre.org/techniques/AML.T0051) | LLM Prompt Injection |
+| Tactic      | ID                                                                | Technique                          |
+| ----------- | ----------------------------------------------------------------- | ---------------------------------- |
+| Execution   | [T1204.001](https://attack.mitre.org/techniques/T1204/001/)       | User Execution: Malicious Link     |
+| Execution   | [AML.T0051](https://atlas.mitre.org/techniques/AML.T0051)         | LLM Prompt Injection               |
 | Persistence | [AML.T0080.000](https://atlas.mitre.org/techniques/AML.T0080.000) | AI Agent Context Poisoning: Memory |
 
 ---
 
 ## 📚 References
 
-- [Microsoft Security Blog — AI Recommendation Poisoning (Feb 2026)](https://www.microsoft.com/en-us/security/blog/2026/02/10/ai-recommendation-poisoning/)
-- [MITRE ATLAS — AML.T0080.000: Memory Poisoning](https://atlas.mitre.org/techniques/AML.T0080.000)
-- [MITRE ATLAS — AML.T0051: LLM Prompt Injection](https://atlas.mitre.org/techniques/AML.T0051)
-- [Microsoft AI Red Team — Taxonomy of Failure Modes in Agentic AI](https://cdn-dynmedia-1.microsoft.com/is/content/microsoftcorp/microsoft/final/en-us/microsoft-brand/documents/Taxonomy-of-Failure-Mode-in-Agentic-AI-Systems-Whitepaper.pdf)
+* [Microsoft Security Blog — AI Recommendation Poisoning (Feb 2026)](https://www.microsoft.com/en-us/security/blog/2026/02/10/ai-recommendation-poisoning/)
+* [MITRE ATLAS — AML.T0080.000: Memory Poisoning](https://atlas.mitre.org/techniques/AML.T0080.000)
+* [MITRE ATLAS — AML.T0051: LLM Prompt Injection](https://atlas.mitre.org/techniques/AML.T0051)
+* [Microsoft AI Red Team — Taxonomy of Failure Modes in Agentic AI](https://cdn-dynmedia-1.microsoft.com/is/content/microsoftcorp/microsoft/final/en-us/microsoft-brand/documents/Taxonomy-of-Failure-Mode-in-Agentic-AI-Systems-Whitepaper.pdf)
 
 ---
 
