@@ -2,11 +2,6 @@
 
 > **AI Recommendation Poisoning** — Research, Analysis & Awareness
 
-[![Made by Aryan Giri](https://img.shields.io/badge/Written%20by-Aryan%20Giri-blueviolet?style=flat-square)]()
-[![MITRE ATLAS AML.T0080](https://img.shields.io/badge/MITRE%20ATLAS-AML.T0080-red?style=flat-square)](https://atlas.mitre.org/techniques/AML.T0080.000)
-[![MITRE ATLAS AML.T0051](https://img.shields.io/badge/MITRE%20ATLAS-AML.T0051-orange?style=flat-square)](https://atlas.mitre.org/techniques/AML.T0051)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=flat-square)](LICENSE)
-
 **Live Demo →** [https://giriaryan694-a11y.github.io/MemoryPoison/](https://giriaryan694-a11y.github.io/MemoryPoison/)
 
 ---
@@ -75,39 +70,23 @@ Claude has implemented a notable defense: when a prompt arrives via an automated
 * Prompt is auto-written but not auto-sent (similar behavior to Claude)
 * **No warning message** is displayed to the user
 * Duck.ai also lacks persistent memory features, making memory poisoning largely ineffective here anyway
+* ChatGPT follows a similar partial-defense pattern in logged-in flows: the prompt is typically written into the send bar and the user must press **Send** manually
+* On **logged-out / guest** ChatGPT flows, the impact is usually limited because saved memories and chat history are account-tied features
+* That means ChatGPT is more exposed to session-level bias than persistent memory poisoning in guest use, while logged-in use still depends on the user sending the prompt without noticing
+* ChatGPT does not show a warning banner in this flow, so a malicious prefilled prompt can still influence the conversation if the user submits it blindly
 
 ### ❌ Removed Feature — Google Gemini & Microsoft Copilot
 
 * Both platforms **appear to have removed or restricted** the auto-fill URL prompt feature
 * Attempts to use the `?prompt=` or `?q=` parameters no longer trigger automatic prompt injection
 
-### ⚠️ Still Vulnerable — ChatGPT, Grok, Mistral
+### ⚠️ Still Vulnerable — Grok, Mistral
 
 * These platforms still accept pre-filled prompts from URL parameters
-* On **logged-out / unauthenticated** ChatGPT flows, the prompt may auto-submit depending on the entry path
-* On **logged-in** ChatGPT flows, the prompt is typically written into the send bar and the user must press **Send** manually
+* On logged-in flows, the prompt is typically written into the send bar and the user must press **Send** manually
 * That manual step adds friction, but it does **not** remove the risk of memory poisoning if the user sends the prompt without reviewing it
-* For ChatGPT specifically, unauthenticated users generally do **not** have access to account-tied features like saved memory or chat history management, so the impact is lower than a logged-in account with memory enabled
 * Memory poisoning via crafted links remains effective on these platforms as of research date
 * Users clicking poisoned links on these platforms may receive **no warning**
-
----
-
-## 🎯 Why This Is Dangerous
-
-The attack is insidious for several reasons:
-
-**Invisibility** — The user never sees the injected memory being created. It happens silently in the background of what appears to be a helpful action.
-
-**Persistence** — Unlike a one-time phishing page, a poisoned memory entry influences *every future conversation* the user has with their AI assistant, potentially for months.
-
-**Trust exploitation** — Users tend to trust their AI assistant's recommendations more than random web results. A poisoned AI confidently presenting biased information is far more persuasive than a biased website.
-
-**Low barrier** — Freely available tools like the CiteMET npm package and point-and-click URL generators make deploying this attack as easy as installing a website plugin.
-
-**High-stakes domains** — Microsoft's research found poisoning attempts targeting financial advice, health information, legal services, and cybersecurity — domains where biased recommendations can cause real-world harm.
-
----
 
 ## 🔍 What Gets Injected?
 
